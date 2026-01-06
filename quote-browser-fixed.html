@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Quotes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #faf8f5;
+            --text: #1a1613;
+            --text-light: #5a524a;
+            --accent: #8b4513;
+            --line: #e8e3dc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Crimson Pro', serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            touch-action: pan-y;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            overflow: hidden;
+        }
+
+        .quote-wrapper {
+            max-width: 720px;
+            width: 100%;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .quote-text {
+            font-size: clamp(1.5rem, 4vw, 2.5rem);
+            line-height: 1.5;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            position: relative;
+            text-align: center;
+            letter-spacing: -0.01em;
+        }
+
+        .quote-text::before {
+            content: '"';
+            position: absolute;
+            left: -0.5em;
+            top: -0.1em;
+            font-size: 1.5em;
+            color: var(--text-light);
+            opacity: 0.3;
+        }
+
+        .author {
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            text-align: center;
+            color: var(--text-light);
+            position: relative;
+            padding-top: 1.5rem;
+        }
+
+        .author::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background: var(--line);
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 3rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 1rem;
+            z-index: 100;
+        }
+
+        .btn {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--text);
+            color: var(--bg);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .counter {
+            position: fixed;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            color: var(--text-light);
+            text-transform: uppercase;
+        }
+
+        .background-ornament {
+            position: fixed;
+            width: 400px;
+            height: 400px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(139, 69, 19, 0.03) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .ornament-1 {
+            top: -200px;
+            right: -200px;
+        }
+
+        .ornament-2 {
+            bottom: -200px;
+            left: -200px;
+        }
+
+        @keyframes slideOut {
+            to {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .quote-wrapper.exit {
+            animation: slideOut 0.4s ease forwards;
+        }
+
+        .quote-wrapper.enter {
+            animation: slideIn 0.6s ease forwards;
+        }
+
+        .swipe-hint {
+            position: fixed;
+            bottom: 8rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.1em;
+            color: var(--text-light);
+            opacity: 0.5;
+            text-transform: uppercase;
+            animation: pulse 2s ease infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 0.6; }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            .quote-text {
+                font-size: 1.5rem;
+            }
+
+            .controls {
+                bottom: 2rem;
+            }
+
+            .btn {
+                width: 48px;
+                height: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background-ornament ornament-1"></div>
+    <div class="background-ornament ornament-2"></div>
+    
+    <div class="counter">
+        <span id="currentIndex">1</span> / <span id="totalQuotes">26</span>
+    </div>
+
+    <div class="container">
+        <div class="quote-wrapper" id="quoteWrapper">
+            <div class="quote-text" id="quoteText">Loading your quotes...</div>
+            <div class="author" id="quoteAuthor"></div>
+        </div>
+    </div>
+
+    <div class="swipe-hint" id="swipeHint">Swipe or tap next →</div>
+
+    <div class="controls">
+        <button class="btn" id="prevBtn" aria-label="Previous quote">←</button>
+        <button class="btn" id="nextBtn" aria-label="Next quote">→</button>
+    </div>
+
+    <script>
+const quotes = [{"quote": "Give form to everyday objects that are rooted in culture & history.", "author": "Emre Kayganaci"}, {"quote": "Give structure to have a better workflow for designers to work on.", "author": "Anonymous"}, {"quote": "Creativity is intelligence having fun.", "author": "Anonymous"}, {"quote": "Reputation is what people think about you Character is what you are.", "author": "Kingsman 2022"}, {"quote": "Sometimes it\u2019s the pebble in your shoe that wears you out, not the mountain in front of you.", "author": "Muhammad Ali"}, {"quote": "Tantangan Bukan rintangan.", "author": "Anonymous"}, {"quote": "Good thinkers understand a simple truth: you can\u2019t make good decisions without good thinking and good thinking requires time. If you want to think better, schedule time to think and hone your understanding of the problem.", "author": "Keith Yamashita"}, {"quote": "Never approach a horse from the rear,a bull from the front, and a fool from any direction.", "author": "Anonymous"}, {"quote": "When art critics get together they talk about Form and Structure and Meaning. When artists get together they talk about where you can buy cheap turpentine.", "author": "Pablo Picasso"}, {"quote": "Motivation comes from working on things we care about.", "author": "Sheryl Sandberg"}, {"quote": "Failure is part of success.", "author": "Jim Kwik"}, {"quote": "The mind is everything. What you think you become.", "author": "Anonymous"}, {"quote": "If you want others to follow, learn to be alone with your thoughts.", "author": "William Deresiewicz"}, {"quote": "Design is the silent ambassador of your brand.", "author": "Paul Rand"}, {"quote": "Let setback be the reason you work harder.", "author": "Anonymous"}, {"quote": "One that angers you controls you. Don\u2019t give anyone that power!", "author": "Anonymous"}, {"quote": "Have a plan or you\u2019ll be someone else\u2019s plan.", "author": "Anonymous"}, {"quote": "Look without seeing, eat without tasting.", "author": "Leonardo da Vinci"}, {"quote": "All you have to do, if you want everything in life from everybody else, is first pay attention; listen to them; show them respect; give them meaning, satisfaction, and fulfillment. Convey to them that they matter to you. And show you love them. But you have to go first. And what are you going to get back? Mirrored reciprocation.", "author": "Anonymous"}, {"quote": "You cannot understand design if you do not understand people. This refers to our customers first and stakeholders second.", "author": "Dieter Rams"}, {"quote": "Leaders should act more like a compass than a map, setting direction and creating clarity without dictating every step.", "author": "Mike Peng"}, {"quote": "Nothing is impossible, the word itself says I\u2019m possible! Life shrinks or expands in proportion to one\u2019s courage.", "author": "Anonymous"}, {"quote": "It isn\u2019t always best to speak up right away. Strategic silence can amplify your voice. Evidence: people are more likely to be heard when they wait until (a) the issue is relevant, (b) they\u2019re ready, and (c) the audience is responsive. Fools rush in. Wise people bide their time.", "author": "Adam Grant"}, {"quote": "You can\u2019t improve what you can\u2019t measure.", "author": "Peter Drucker"}, {"quote": "Our job as creative leaders is to stay inspired so we can inspire others.", "author": "John Maeda"}, {"quote": "Success is not final, failure is not fatal: it is the courage to continue that counts.", "author": "WINSTON CHURCHILL"}];
+
+let currentIndex = 0;
+let touchStartX = 0;
+let touchEndX = 0;
+
+const quoteText = document.getElementById('quoteText');
+const quoteAuthor = document.getElementById('quoteAuthor');
+const quoteWrapper = document.getElementById('quoteWrapper');
+const currentIndexEl = document.getElementById('currentIndex');
+const totalQuotesEl = document.getElementById('totalQuotes');
+const swipeHint = document.getElementById('swipeHint');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+
+totalQuotesEl.textContent = quotes.length;
+shuffleQuotes();
+displayQuote(currentIndex);
+
+function shuffleQuotes() {
+    for (let i = quotes.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [quotes[i], quotes[j]] = [quotes[j], quotes[i]];
+    }
+}
+
+function displayQuote(index) {
+    quoteWrapper.classList.remove('exit', 'enter');
+    
+    setTimeout(function() {
+        quoteText.textContent = quotes[index].quote;
+        quoteAuthor.textContent = quotes[index].author;
+        currentIndexEl.textContent = index + 1;
+        quoteWrapper.classList.add('enter');
+        
+        if (index > 0) {
+            swipeHint.style.display = 'none';
+        }
+    }, 50);
+}
+
+function nextQuote() {
+    quoteWrapper.classList.add('exit');
+    setTimeout(function() {
+        currentIndex = (currentIndex + 1) % quotes.length;
+        displayQuote(currentIndex);
+    }, 400);
+}
+
+function prevQuote() {
+    quoteWrapper.classList.add('exit');
+    setTimeout(function() {
+        currentIndex = (currentIndex - 1 + quotes.length) % quotes.length;
+        displayQuote(currentIndex);
+    }, 400);
+}
+
+nextBtn.addEventListener('click', nextQuote);
+prevBtn.addEventListener('click', prevQuote);
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+        e.preventDefault();
+        nextQuote();
+    } else if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        prevQuote();
+    }
+});
+
+document.addEventListener('touchstart', function(e) {
+    touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+document.addEventListener('touchend', function(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+}, { passive: true });
+
+function handleSwipe() {
+    const swipeThreshold = 50;
+    const diff = touchStartX - touchEndX;
+    
+    if (Math.abs(diff) > swipeThreshold) {
+        if (diff > 0) {
+            nextQuote();
+        } else {
+            prevQuote();
+        }
+    }
+}
+
+document.body.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 1) {
+        e.preventDefault();
+    }
+}, { passive: false });
+    </script>
+</body>
+</html>
